@@ -28,6 +28,8 @@ namespace DNWS
             sb.Append("Browser Information: ").Append(request.getPropertyByKey("User-Agent")).Append("<br><br>");
             sb.Append("Accept Language: ").Append(request.getPropertyByKey("Accept-Language")).Append("<br><br>");
             sb.Append("Accept Encoding: ").Append(request.getPropertyByKey("Accept-Encoding")).Append("<br><br>");
+            sb.Append("Thread ID: " ).Append(request.getPropertyByKey("ThreadId")).Append("</br></br>");
+            sb.Append("Thread status: " ).Append(request.getPropertyByKey("ThreadStatus"));
             sb.Append("</body></html>");
             response = new HTTPResponse(200);
             response.body = Encoding.UTF8.GetBytes(sb.ToString());
