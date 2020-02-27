@@ -84,6 +84,7 @@ namespace DNWS
         protected Socket _client;
         protected Program _parent;
         protected Dictionary<string, PluginInfo> plugins;
+        protected Thread thread;
 
         /// <summary>
         /// Constructor, set the client socket and parent ref, also init stat hash
@@ -106,6 +107,10 @@ namespace DNWS
                 pi.reference = (IPlugin) Activator.CreateInstance(Type.GetType(pi.type));
                 plugins[section["Path"]] = pi;
             }
+        }
+        
+        public void getThread(Thread t){
+            thread = t;
         }
 
         /// <summary>
@@ -170,6 +175,8 @@ namespace DNWS
 
             request = new HTTPRequest(requestStr);
             request.addProperty("RemoteEndPoint", _client.RemoteEndPoint.ToString());
+            request.addProperty("ThreadId", thread.ManagedThreadId.ToString());
+            request.addProperty("ThreadStatus", thread.ThreadState.ToString());
 
             // We can handle only GET now
             if(request.Status != 200) {
@@ -296,7 +303,13 @@ namespace DNWS
                     // Get one, show some info
                     _parent.Log("Client accepted:" + clientSocket.RemoteEndPoint.ToString());
                     HTTPProcessor hp = new HTTPProcessor(clientSocket, _parent);
-                    hp.Process();
+                    Thread my_thread = new Thread(new ThreadStart(hp.Process));                      
+                    my_thread.Start();
+                    hp.getThread(my_thread);
+                    //_parent.Log("Thread status: " + my_thread.ThreadState);
+                    //_parent.Log("Thread ID: " + my_thread.ManagedThreadId);
+                    //hp.Process();
+                    // End single therad
                 }
                 catch (Exception ex)
                 {
